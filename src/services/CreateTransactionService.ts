@@ -14,14 +14,14 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
+    if (!['income', 'outcome'].includes(type)) {
+      throw Error('Transaction type is invalid');
+    }
+
     const { total } = this.transactionsRepository.getBalance();
 
     if (type === 'outcome' && total < value) {
-      throw Error('Balance unavailable');
-    }
-
-    if (type !== 'income' && type !== 'outcome') {
-      throw Error('Invalid type');
+      throw Error('You do not have enough balance');
     }
 
     const transaction = this.transactionsRepository.create({
